@@ -1,0 +1,150 @@
+package com.v2dawn.noactivegui.utils;
+
+import java.io.BufferedReader;
+import java.io.DataOutputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.lang.reflect.Field;
+import java.util.HashSet;
+import java.util.Set;
+
+public class SuTool {
+
+    public static boolean mkdir(String path) {
+        return executeCmd("mkdir " + path);
+    }
+
+    public static boolean createFile(String file) {
+        return executeCmd("touch " + file);
+    }
+
+    public static boolean existDir(String file) {
+        return exist(file, "d");
+    }
+
+    public static boolean existFile(String file) {
+        return exist(file, "f");
+    }
+
+    public static boolean writeFile(String file, String content) {
+        return writeFile(file, content, false);
+    }
+
+    private static boolean writeFile(String file, String content, Boolean append) {
+        Boolean ret = false;
+        try {
+            Process process = Runtime.getRuntime().exec("su");
+            DataOutputStream os = new DataOutputStream(process.getOutputStream());
+            os.write(("echo '" + content + "' " + (append ? ">>" : ">") + " " + file).getBytes());
+            os.writeBytes("\n");
+            os.flush();
+            os.close();
+            os = null;
+            int result = process.waitFor();
+            if (result != 0) {
+                int pid = getPid(process);
+                if (pid != 0) {
+                    try {
+                        android.os.Process.killProcess(pid);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+                ret = false;
+            } else {
+                ret = true;
+            }
+            process.destroy();
+            process = null;
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+        }
+        return ret;
+    }
+
+
+    public static Set<String> readFile(String file) {
+        Set<String> set = new HashSet<>();
+        try {
+            Process process = Runtime.getRuntime().exec("su");
+            DataOutputStream os = new DataOutputStream(process.getOutputStream());
+            os.write(("cat " + file).getBytes());
+            os.writeBytes("\n");
+            os.flush();
+            os.close();
+            process.waitFor();
+
+            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            String line;
+            while ((line = bufferedReader.readLine()) != null) {
+                if ("".equals(line.trim()) || line.trim().startsWith("#")) continue;
+                set.add(line.trim());
+            }
+            bufferedReader.close();
+
+            process.destroy();
+            process = null;
+        } catch (FileNotFoundException fileNotFoundException) {
+            Log.i(file + " file not found");
+        } catch (IOException ioException) {
+            Log.i(file + " file read filed");
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        return set;
+    }
+
+    public static boolean exist(String file, String mark) {
+        return executeCmd("[ -" + mark + " \"" + file + "\" ]; exit $?");
+    }
+
+    private static boolean executeCmd(String cmd) {
+        Boolean ret = false;
+        try {
+            Process process = Runtime.getRuntime().exec("su");
+            DataOutputStream os = new DataOutputStream(process.getOutputStream());
+            os.write(cmd.getBytes());
+            os.writeBytes("\n");
+            os.flush();
+            os.close();
+            os = null;
+            int result = process.waitFor();
+//            if (result != 0) {
+////                int pid = getPid(process);
+////                if (pid != 0) {
+////                    try {
+////                        android.os.Process.killProcess(pid);
+////                    } catch (Exception e) {
+////                        e.printStackTrace();
+////                    }
+////                }
+//                ret = false;
+//            } else {
+//                ret = true;
+//            }
+            ret = result == 0;
+            process.destroy();
+            process = null;
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+            return false;
+        }
+        return ret;
+    }
+
+    public static int getPid(Process p) {
+        int pid = -1;
+
+        try {
+            Field f = p.getClass().getDeclaredField("pid");
+            f.setAccessible(true);
+            pid = f.getInt(p);
+            f.setAccessible(false);
+        } catch (Throwable e) {
+            pid = -1;
+        }
+        return pid;
+    }
+}

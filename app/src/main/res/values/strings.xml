@@ -1,0 +1,62 @@
+<resources>
+    <string name="app_name">NoActive-GUI</string>
+    <string name="app_description">Let app no active in background</string>
+
+    <string name="title_home">NoActive-GUI</string>
+    <string name="title_config">配置</string>
+    <string name="title_logcat">日志</string>
+    <string name="title_other">其他</string>
+    <string name="state">未知状态</string>
+    <string name="icon">图标</string>
+    <string name="supportTitle">支持开发</string>
+    <string name="supportDescriptText">UI来自冻它。</string>
+
+    <string name="changelogTitle">更新日志</string>
+    <string name="changelogText">模块更新日志</string>
+
+    <string name="communityTitle">开发者及社区</string>
+    <string name="coolapk_text">NoActive 酷安 @myflavor  </string>
+    <string name="coolapk_text_2">UI 酷安 @JARK006 </string>
+    <string name="qqgroup_text">QQ群 xxxx</string>
+    <string name="qqchannel_text">QQ频道【xxxx】</string>
+    <string name="telegramgroup_text">Telegram群组</string>
+    <string name="telegramchannel_text">Telegram频道</string>
+    <string name="github_text">APP项目开源</string>
+
+
+    <string name="update_app_name">更新[新安装应用]</string>
+    <string name="about">关于</string>
+
+    <string name="not_support_i_sysapp">系统重要App,不支持黑名单</string>
+    <string name="freezeit_online">NoActive 正在运行中</string>
+    <string name="freezeit_offline">NoActive 未安装或未运行</string>
+    <string name="freezeit_offline_tips">请检查NoActive模块是否安装并启用，若是刚刚安装，则重启生效</string>
+
+    <string name="get_log_fail_tips">工作日志获取失败</string>
+    <string name="get_changelog_fail_tips">更新日志获取失败</string>
+
+    <string name="app_aboutInfo">NoActive Gui。</string>
+
+    <string name="coolapk_link" translatable="false">http://www.coolapk.com/u/3851777</string>
+    <string name="coolapk_link_2" translatable="false">http://www.coolapk.com/u/1212220</string>
+    <string name="update_seccess">更新成功</string>
+    <string name="update_fail">更新失败</string>
+    <string name="update_start">开始更新</string>
+    <string name="app_label">应用名称</string>
+    <string name="package_name" translatable="false">com.v2dawn.noactivegui</string>
+    <string name="developer">开发者: \n NoActive:myflavor \n ui:JARK006</string>
+
+    <string name="showSystemApp">显示系统App</string>
+
+    <string name="clear_log_text">清空日志</string>
+    <string name="clear_log_tips">已清空日志</string>
+    <string name="todo" translatable="false">TODO</string>
+    <string name="refresh_log">刷新日志</string>
+
+    <string name="remove_sys_black_apps">[%s]移除系统App黑名单</string>
+    <string name="add_sys_black_apps">[%s]加入系统App黑名单</string>
+    <string name="remove_white_apps">[%s]移除App黑名单</string>
+    <string name="add_white_apps">[%s]加入App黑名单</string>
+    <string name="copy_pkg_name">包名已复制到剪切板</string>
+
+</resources>
