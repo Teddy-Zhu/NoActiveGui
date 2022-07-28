@@ -1,5 +1,10 @@
 package com.v2dawn.noactivegui.utils;
 
+import android.annotation.SuppressLint;
+import android.os.Build;
+
+import androidx.annotation.RequiresApi;
+
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.FileNotFoundException;
@@ -9,11 +14,11 @@ import java.lang.reflect.Field;
 import java.util.HashSet;
 import java.util.Set;
 
-import io.reactivex.Observable;
-import io.reactivex.ObservableEmitter;
-import io.reactivex.ObservableOnSubscribe;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.schedulers.Schedulers;
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
+import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.core.ObservableOnSubscribe;
+import io.reactivex.rxjava3.schedulers.Schedulers;
+
 
 public class SuTool {
 
@@ -39,9 +44,9 @@ public class SuTool {
 
     private static boolean writeFile(String file, String content, Boolean append) {
         return Observable.create((ObservableOnSubscribe<Boolean>) emitter -> {
-                    emitter.onNext(_writeFile(file, content, append));
-                    emitter.onComplete();
-                })
+            emitter.onNext(_writeFile(file, content, append));
+            emitter.onComplete();
+        })
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .blockingFirst();
@@ -81,9 +86,9 @@ public class SuTool {
 
     public static Set<String> _readFile(String file) {
         return Observable.create((ObservableOnSubscribe<Set<String>>) emitter -> {
-                    emitter.onNext(_readFile(file));
-                    emitter.onComplete();
-                })
+            emitter.onNext(_readFile(file));
+            emitter.onComplete();
+        })
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .blockingFirst();
@@ -127,10 +132,10 @@ public class SuTool {
 
     private static boolean executeCmd(String cmd) {
         return Observable.create((ObservableOnSubscribe<Boolean>) emitter -> {
-                    Boolean ret = _executeCmd(cmd);
-                    emitter.onNext(ret);
-                    emitter.onComplete();
-                })
+            Boolean ret = _executeCmd(cmd);
+            emitter.onNext(ret);
+            emitter.onComplete();
+        })
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io())
                 .blockingFirst();
@@ -187,5 +192,54 @@ public class SuTool {
 
     public static boolean removeFile(String filePath) {
         return executeCmd("rm -f " + filePath);
+    }
+    static Process testprocess;
+    static DataOutputStream testos;
+    public static void createSuProcess() {
+        try {
+            testprocess = Runtime.getRuntime().exec("su");
+            testos = new DataOutputStream(testprocess.getOutputStream());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @SuppressLint("NewApi")
+    public static void adapterProcess() {
+        if (testprocess == null || !testprocess.isAlive()) {
+            createSuProcess();
+        }
+    }
+
+    public static boolean testKeepProcess(String cmd) {
+        Boolean ret = false;
+        try {
+            testos.write(cmd.getBytes());
+            testos.writeBytes("\n");
+            testos.flush();
+            int result = testprocess.waitFor();
+//            if (result != 0) {
+////                int pid = getPid(process);
+////                if (pid != 0) {
+////                    try {
+////                        android.os.Process.killProcess(pid);
+////                    } catch (Exception e) {
+////                        e.printStackTrace();
+////                    }
+////                }
+//                ret = false;
+//            } else {
+//                ret = true;
+//            }
+            ret = result == 0;
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+            return false;
+        }
+        return ret;
+    }
+
+    public static void main(String[] args) {
+
     }
 }

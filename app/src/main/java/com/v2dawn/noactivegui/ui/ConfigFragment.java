@@ -32,20 +32,23 @@ import java.util.Set;
 import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 
+import com.jakewharton.rxbinding4.appcompat.RxActionMenuView;
+import com.jakewharton.rxbinding4.appcompat.RxSearchView;
+import com.jakewharton.rxbinding4.appcompat.SearchViewQueryTextEvent;
+import com.jakewharton.rxbinding4.swiperefreshlayout.RxSwipeRefreshLayout;
 import com.v2dawn.noactivegui.R;
 import com.v2dawn.noactivegui.databinding.FragmentConfigBinding;
 import com.v2dawn.noactivegui.ui.support.ViewData;
 import com.v2dawn.noactivegui.utils.AppListChangeListener;
-import com.v2dawn.noactivegui.utils.DebounceTask;
-import com.v2dawn.noactivegui.utils.RxApiManager;
 import com.v2dawn.noactivegui.utils.ViewDataCacheBuilder;
 
 import cn.hutool.core.collection.CollUtil;
-import io.reactivex.Observable;
-import io.reactivex.ObservableOnSubscribe;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.disposables.Disposable;
-import io.reactivex.schedulers.Schedulers;
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
+import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.core.ObservableOnSubscribe;
+import io.reactivex.rxjava3.functions.Consumer;
+import io.reactivex.rxjava3.schedulers.Schedulers;
+import kotlin.Unit;
 
 public class ConfigFragment extends Fragment implements AppListChangeListener, ViewDataCacheBuilder {
     final String TAG = "ConfigFragment";
@@ -67,7 +70,10 @@ public class ConfigFragment extends Fragment implements AppListChangeListener, V
 
         recyclerView = binding.recyclerviewApp;
         swipeRefreshLayout = binding.swipeRefreshLayout;
-        swipeRefreshLayout.setOnRefreshListener(() -> refreshAppList(showSystemItem.isChecked()));
+
+        RxSwipeRefreshLayout.refreshes(swipeRefreshLayout)
+                .throttleFirst(2000L,TimeUnit.MILLISECONDS)
+                .subscribe(unit -> refreshAppList(showSystemItem.isChecked()));
 
         pm = requireContext().getPackageManager();
 
@@ -100,31 +106,20 @@ public class ConfigFragment extends Fragment implements AppListChangeListener, V
             }
         }, this.getViewLifecycleOwner());
 
-
         refreshAppList(false);
 
         return binding.getRoot();
     }
 
+    private void searchViewTextChange(CharSequence query){
+        if (recycleAdapter != null) {
+            recycleAdapter.getFilter().filter(query);
+        }
+    }
     private void bindSearchViewEvents() {
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String query) {
-                if (recycleAdapter != null) {
-                    recycleAdapter.getFilter().filter(query);
-                }
-                return true;
-            }
-
-            @Override
-            public boolean onQueryTextChange(String newText) {
-//                recycleAdapter.getFilter().filter(newText);
-                if (newText != null || newText.length() == 0) {
-                    onQueryTextSubmit(newText);
-                }
-                return true;
-            }
-        });
+        RxSearchView.queryTextChangeEvents(searchView)
+                .throttleLast(1,TimeUnit.SECONDS)
+                .subscribe(searchViewQueryTextEvent -> searchViewTextChange(searchViewQueryTextEvent.getQueryText()));
     }
 
     @SuppressLint("NewApi")
@@ -171,20 +166,19 @@ public class ConfigFragment extends Fragment implements AppListChangeListener, V
 
     @SuppressLint("CheckResult")
     private void refreshAppList(Boolean showSystem) {
-        RxApiManager.get().cancel("refreshAppList");
 //        swipeRefreshLayout.setEnabled(false);
         swipeRefreshLayout.setRefreshing(true);
 
-        Disposable disposable = Observable.create((ObservableOnSubscribe<Boolean>) emitter -> {
-                    refreshAppListApi(showSystem);
-                    emitter.onNext(true);
-                    emitter.onComplete();
-                })
+        Observable.create((ObservableOnSubscribe< List<ViewData>>) emitter -> {
+            refreshAppListApi(showSystem);
+            List<ViewData> data = buildCache();
+
+            emitter.onNext(data);
+            emitter.onComplete();
+        })
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(ret -> refreshListView());
-
-        RxApiManager.get().add("refreshAppList", disposable);
+                .subscribe(data -> refreshListView(data));
 
     }
 
@@ -202,40 +196,20 @@ public class ConfigFragment extends Fragment implements AppListChangeListener, V
     }
 
     @SuppressLint("CheckResult")
-    private void refreshListView() {
-        RxApiManager.get().cancel("refreshListView");
+    private void refreshListView(List<ViewData> data) {
 
-        Disposable disposable = Observable.create((ObservableOnSubscribe<List<ViewData>>) emitter -> {
+        recycleAdapter = new AppListRecyclerAdapter(requireContext(), MainActivity.memData.getWhiteApps(),
+                MainActivity.memData.getBlackSystemApps(),
+                data, CollUtil.newArrayList(data),
+                ConfigFragment.this, ConfigFragment.this);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
+        recyclerView.setLayoutManager(layoutManager);
+        layoutManager.setOrientation(RecyclerView.VERTICAL);
+        recyclerView.setAdapter(recycleAdapter);
+        recyclerView.setItemAnimator(new DefaultItemAnimator());
 
-                    List<ViewData> data = buildCache();
+        swipeRefreshLayout.setRefreshing(false);
 
-                    emitter.onNext(data);
-                    emitter.onComplete();
-                }).subscribeOn(Schedulers.newThread())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(data -> {
-
-                    recycleAdapter = new AppListRecyclerAdapter(requireContext(), MainActivity.memData.getWhiteApps(),
-                            MainActivity.memData.getBlackSystemApps(),
-                            data, CollUtil.newArrayList(data),
-                            ConfigFragment.this, ConfigFragment.this);
-                    LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
-                    recyclerView.setLayoutManager(layoutManager);
-                    layoutManager.setOrientation(RecyclerView.VERTICAL);
-                    recyclerView.setAdapter(recycleAdapter);
-                    recyclerView.setItemAnimator(new DefaultItemAnimator());
-
-//                    recyclerView.setItemViewCacheSize(50);
-//
-//                    recyclerView.setDrawingCacheEnabled(true);
-//
-//                    recyclerView.setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_HIGH);
-
-                    swipeRefreshLayout.setRefreshing(false);
-//                    swipeRefreshLayout.setEnabled(true);
-                });
-
-        RxApiManager.get().add("refreshListView", disposable);
     }
 
     @Override
@@ -248,22 +222,18 @@ public class ConfigFragment extends Fragment implements AppListChangeListener, V
     public void notifyAppsChanged(int position, ViewData viewData) {
         recycleAdapter.notifyItemChanged(position, 0);
 
-        RxApiManager.get().cancel("notifyAppsChanged");
-
-        Disposable disposable = Observable.create((ObservableOnSubscribe<Boolean>) emitter -> {
-                    if (viewData.getIsSystem()) {
-                        MainActivity.memData.writeBlackSystemApps();
-                    } else {
-                        MainActivity.memData.writeWhiteApps();
-                    }
-                    emitter.onNext(true);
-                    emitter.onComplete();
-                }).subscribeOn(Schedulers.newThread())
+        Observable.create((ObservableOnSubscribe<Boolean>) emitter -> {
+            if (viewData.getIsSystem()) {
+                MainActivity.memData.writeBlackSystemApps();
+            } else {
+                MainActivity.memData.writeWhiteApps();
+            }
+            emitter.onNext(true);
+            emitter.onComplete();
+        }).throttleLast(2000L, TimeUnit.MILLISECONDS).subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
-                .delay(2000L, TimeUnit.MILLISECONDS)
                 .subscribe();
 
-        RxApiManager.get().add("notifyAppsChanged", disposable);
     }
 
     @Override

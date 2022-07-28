@@ -154,6 +154,7 @@ public class AppListRecyclerAdapter extends RecyclerView.Adapter<AppListRecycler
     private Filter nameFilter = new Filter() {
         @Override
         protected FilterResults performFiltering(CharSequence charSequence) {
+
             FilterResults results = new FilterResults();
 
             if (charSequence == null || charSequence.length() == 0) {
