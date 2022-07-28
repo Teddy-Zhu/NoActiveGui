@@ -13,25 +13,27 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
+import android.widget.CompoundButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.widget.SwitchCompat;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.view.MenuProvider;
 import androidx.fragment.app.Fragment;
 
 
-import com.google.android.material.snackbar.Snackbar;
 import com.v2dawn.noactivegui.R;
 import com.v2dawn.noactivegui.databinding.FragmentHomeBinding;
 import com.v2dawn.noactivegui.utils.AppUtils;
+import com.v2dawn.noactivegui.utils.FreezerConfig;
+import com.v2dawn.noactivegui.utils.NoActiveConfig;
 
 
-public class HomeFragment extends Fragment implements View.OnClickListener {
+public class HomeFragment extends Fragment implements View.OnClickListener, CompoundButton.OnCheckedChangeListener {
 
     private FragmentHomeBinding binding;
     TextView moduleInfo, moduleState;
@@ -40,6 +42,8 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
     String moduleName;
     String moduleVersion;
     ConstraintLayout constraintLayout;
+
+    SwitchCompat useKill, useKill19, useKill20, disableOOM, forceFreezerV2, enableColorOS, debug;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -53,7 +57,19 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
         coolApkLink = binding.coolapkLink;
         coolApkLink2 = binding.coolapkLink2;
 
+        useKill = binding.useKill;
+        useKill19 = binding.useKill19;
+        useKill20 = binding.useKill20;
+        disableOOM = binding.disableOom;
+        forceFreezerV2 = binding.forceFreezerv2;
+        enableColorOS = binding.enableColorosOom;
+        debug = binding.enableDebug;
+
+
+        updateConfigStatus();
         updateStatus();
+
+        bindEvents();
 
         stateLayout.setOnClickListener(this);
 
@@ -96,6 +112,14 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
         binding = null;
     }
 
+    private void bindEvents() {
+        useKill19.setOnCheckedChangeListener(this);
+        useKill20.setOnCheckedChangeListener(this);
+        disableOOM.setOnCheckedChangeListener(this);
+        forceFreezerV2.setOnCheckedChangeListener(this);
+        enableColorOS.setOnCheckedChangeListener(this);
+    }
+
     private void updateStatus() {
         boolean isActive = AppUtils.isModuleActive();
 
@@ -114,6 +138,22 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
         moduleInfo.setText(R.string.freezeit_online);
         moduleState.setText(moduleVersion);
 
+    }
+
+    private void updateConfigStatus() {
+        NoActiveConfig noActiveConfig = FreezerConfig.loadConfig();
+
+        useKill19.setChecked(noActiveConfig.isKill19());
+        useKill20.setChecked(noActiveConfig.isKill20());
+        updateUseKillStatus();
+        disableOOM.setChecked(noActiveConfig.isDisableOOM());
+        forceFreezerV2.setChecked(noActiveConfig.isForceFreezerV2());
+        enableColorOS.setChecked(noActiveConfig.isColorOS());
+        debug.setChecked(noActiveConfig.isDebug());
+    }
+
+    private void updateUseKillStatus() {
+        useKill.setChecked(useKill19.isChecked() || useKill20.isChecked());
     }
 
     public static int getVersionCode(Context context) {
@@ -201,4 +241,58 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
         dialog.show();
     }
 
+    @Override
+    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+        switch (buttonView.getId()) {
+            case R.id.use_kill_19:
+                if (isChecked) {
+                    FreezerConfig.useKill19();
+                    useKill20.setChecked(false);
+                } else {
+                    FreezerConfig.unUseKill();
+                }
+                updateUseKillStatus();
+
+                break;
+            case R.id.use_kill_20:
+                if (isChecked) {
+                    FreezerConfig.useKill20();
+                    useKill19.setChecked(false);
+                } else {
+                    FreezerConfig.unUseKill();
+                }
+                updateUseKillStatus();
+                break;
+            case R.id.disable_oom:
+                if (isChecked) {
+                    FreezerConfig.closeOOM();
+                } else {
+                    FreezerConfig.openOOM();
+                }
+                enableColorOS.setEnabled(!isChecked);
+                break;
+            case R.id.force_freezerv2:
+                if (isChecked) {
+                    FreezerConfig.forceFreezerV2();
+                } else {
+                    FreezerConfig.disableFreezerV2();
+                }
+                break;
+            case R.id.enable_coloros_oom:
+                if (isChecked) {
+                    FreezerConfig.setColorOs();
+                } else {
+                    FreezerConfig.unSetColorOs();
+                }
+                break;
+            case R.id.enable_debug:
+                if (isChecked) {
+                    FreezerConfig.openDebug();
+                } else {
+                    FreezerConfig.closeDebug();
+                }
+            default:
+                break;
+        }
+    }
 }

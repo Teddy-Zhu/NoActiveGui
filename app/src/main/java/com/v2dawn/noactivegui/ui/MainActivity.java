@@ -14,7 +14,7 @@ import com.v2dawn.noactivegui.entity.MemData;
 
 public class MainActivity extends AppCompatActivity {
 
-    public static final MemData memData = new MemData(false);
+    public static final MemData memData = new MemData();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

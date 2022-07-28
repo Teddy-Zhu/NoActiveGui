@@ -9,6 +9,12 @@ import java.lang.reflect.Field;
 import java.util.HashSet;
 import java.util.Set;
 
+import io.reactivex.Observable;
+import io.reactivex.ObservableEmitter;
+import io.reactivex.ObservableOnSubscribe;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
+
 public class SuTool {
 
     public static boolean mkdir(String path) {
@@ -32,6 +38,16 @@ public class SuTool {
     }
 
     private static boolean writeFile(String file, String content, Boolean append) {
+        return Observable.create((ObservableOnSubscribe<Boolean>) emitter -> {
+                    emitter.onNext(_writeFile(file, content, append));
+                    emitter.onComplete();
+                })
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .blockingFirst();
+    }
+
+    private static boolean _writeFile(String file, String content, Boolean append) {
         Boolean ret = false;
         try {
             Process process = Runtime.getRuntime().exec("su");
@@ -63,6 +79,15 @@ public class SuTool {
         return ret;
     }
 
+    public static Set<String> _readFile(String file) {
+        return Observable.create((ObservableOnSubscribe<Set<String>>) emitter -> {
+                    emitter.onNext(_readFile(file));
+                    emitter.onComplete();
+                })
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .blockingFirst();
+    }
 
     public static Set<String> readFile(String file) {
         Set<String> set = new HashSet<>();
@@ -101,6 +126,18 @@ public class SuTool {
     }
 
     private static boolean executeCmd(String cmd) {
+        return Observable.create((ObservableOnSubscribe<Boolean>) emitter -> {
+                    Boolean ret = _executeCmd(cmd);
+                    emitter.onNext(ret);
+                    emitter.onComplete();
+                })
+                .subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.io())
+                .blockingFirst();
+
+    }
+
+    private static boolean _executeCmd(String cmd) {
         Boolean ret = false;
         try {
             Process process = Runtime.getRuntime().exec("su");
@@ -146,5 +183,9 @@ public class SuTool {
             pid = -1;
         }
         return pid;
+    }
+
+    public static boolean removeFile(String filePath) {
+        return executeCmd("rm -f " + filePath);
     }
 }

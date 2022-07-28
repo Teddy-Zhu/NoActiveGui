@@ -70,11 +70,6 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="20dp"
-                android:orientation="vertical"/>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="20dp"
                 android:orientation="vertical" />
 
             <androidx.cardview.widget.CardView
@@ -145,6 +140,120 @@
                 </LinearLayout>
 
             </androidx.cardview.widget.CardView>
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="20dp"
+                android:orientation="vertical"/>
+
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                app:cardCornerRadius="16dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@color/gray_white"
+                    android:orientation="vertical"
+                    android:padding="10dp">
+
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="50dp"
+                        android:orientation="horizontal"
+                        android:padding="10dp">
+
+                        <androidx.appcompat.widget.SwitchCompat
+                            android:text="@string/useKiller"
+                            android:enabled="false"
+                            android:textColor="@color/black"
+                            android:id="@+id/use_kill"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"/>
+                    </LinearLayout>
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="50dp"
+                        android:orientation="horizontal"
+                        android:padding="10dp">
+
+                        <androidx.appcompat.widget.SwitchCompat
+                            android:id="@+id/use_kill_19"
+                            android:text="@string/useKiller_19"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"/>
+                    </LinearLayout>
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="50dp"
+                        android:orientation="horizontal"
+                        android:padding="10dp">
+
+                        <androidx.appcompat.widget.SwitchCompat
+                            android:text="@string/useKiller_20"
+                            android:id="@+id/use_kill_20"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"/>
+                    </LinearLayout>
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="50dp"
+                        android:orientation="horizontal"
+                        android:padding="10dp">
+
+                        <androidx.appcompat.widget.SwitchCompat
+                            android:text="@string/forceFreezerV2"
+                            android:id="@+id/force_freezerv2"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"/>
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="50dp"
+                        android:orientation="horizontal"
+                        android:padding="10dp">
+
+                        <androidx.appcompat.widget.SwitchCompat
+                            android:id="@+id/disable_oom"
+                            android:text="@string/disable_oom"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"/>
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="50dp"
+                        android:orientation="horizontal"
+                        android:padding="10dp">
+
+                        <androidx.appcompat.widget.SwitchCompat
+                            android:id="@+id/enable_coloros_oom"
+                            android:text="@string/enable_colorOs_oom"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"/>
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="50dp"
+                        android:orientation="horizontal"
+                        android:padding="10dp">
+
+                        <androidx.appcompat.widget.SwitchCompat
+                            android:id="@+id/enable_debug"
+                            android:text="@string/enable_debug"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"/>
+                    </LinearLayout>
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
+
         </LinearLayout>
     </ScrollView>
 

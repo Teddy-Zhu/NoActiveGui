@@ -21,10 +21,10 @@ public class FreezerConfig {
     public final static String kill20 = "kill.20";
     public final static String freezerV2 = "freezer.v2";
     public final static String colorOs = "color.os";
+    public final static String debug = "debug";
 
     public static boolean isConfigOn(String configName) {
-        File config = new File(ConfigDir, configName);
-        return config.exists();
+        return SuTool.existFile(ConfigDir + "/" + configName);
     }
 
     public static int getKillSignal() {
@@ -98,6 +98,7 @@ public class FreezerConfig {
         }
         SuTool.writeFile(ConfigDir + "/" + whiteAppConfig, stringBuilder.toString());
     }
+
     public static void writeBlackSystemApps(Set<String> blackSystemApps) {
         StringBuilder stringBuilder = new StringBuilder();
         for (String blackSystemApp : blackSystemApps) {
@@ -128,6 +129,75 @@ public class FreezerConfig {
 
     public static Set<String> get(String name) {
         return SuTool.readFile(ConfigDir + "/" + name);
+    }
+
+
+    public static NoActiveConfig loadConfig() {
+
+        NoActiveConfig noActiveConfig = new NoActiveConfig();
+        noActiveConfig.setKill19(isConfigOn(kill19));
+        noActiveConfig.setKill20(isConfigOn(kill20));
+
+        noActiveConfig.setDisableOOM(isConfigOn(disableOOM));
+        noActiveConfig.setForceFreezerV2(isConfigOn(freezerV2));
+        noActiveConfig.setColorOS(isConfigOn(colorOs));
+        noActiveConfig.setDebug(isConfigOn(debug));
+        return noActiveConfig;
+    }
+
+
+    public static boolean openDebug() {
+        return requireFile(debug);
+    }
+
+    public static boolean closeDebug() {
+        return requireNotExistFile(debug);
+    }
+
+    public static boolean forceFreezerV2() {
+        return requireFile(freezerV2);
+    }
+
+    public static boolean disableFreezerV2() {
+        return requireNotExistFile(freezerV2);
+    }
+
+    public static boolean openOOM() {
+
+        return requireNotExistFile(disableOOM);
+    }
+
+    public static boolean closeOOM() {
+        return requireFile(disableOOM);
+    }
+
+    public static boolean setColorOs() {
+
+        return requireFile(colorOs);
+    }
+
+    public static boolean unSetColorOs() {
+        return requireNotExistFile(colorOs);
+    }
+
+    public static boolean useKill19() {
+        return requireNotExistFile(kill20) && requireFile(kill19);
+    }
+
+    public static boolean useKill20() {
+        return requireNotExistFile(kill19) && requireFile(kill20);
+    }
+
+    public static boolean unUseKill() {
+        return requireNotExistFile(kill19) && requireNotExistFile(kill20);
+    }
+
+    public static boolean requireFile(String name) {
+        return isConfigOn(name) || SuTool.createFile(ConfigDir + "/" + name);
+    }
+
+    public static boolean requireNotExistFile(String name) {
+        return !isConfigOn(name) || SuTool.removeFile(ConfigDir + "/" + name);
     }
 
 

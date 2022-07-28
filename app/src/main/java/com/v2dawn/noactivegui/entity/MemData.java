@@ -23,16 +23,10 @@ public class MemData {
     private final FileObserver fileObserver;
 
 
-    public MemData(Boolean startWatching) {
+    public MemData() {
         fileObserver = new ConfigFileObserver(this);
-        if (startWatching) {
-            fileObserver.startWatching();
-        }
     }
 
-    public MemData() {
-        this(true);
-    }
 
     public void writeWhiteApps() {
         FreezerConfig.writeWhiteApps(whiteApps);

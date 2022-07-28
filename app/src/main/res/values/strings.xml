@@ -59,4 +59,12 @@
     <string name="add_white_apps">[%s]加入App黑名单</string>
     <string name="copy_pkg_name">包名已复制到剪切板</string>
 
+    <string name="forceFreezerV2">强制使用freezerV2</string>
+    <string name="useKiller">是否启用kill</string>
+    <string name="useKiller_19">使用kill 19 Signal</string>
+    <string name="useKiller_20">使用kill 20 Signal</string>
+    <string name="disable_oom">是否禁用oom_adj</string>
+    <string name="enable_colorOs_oom">启用coloros oom_adj</string>
+    <string name="enable_debug">启用debug</string>
+
 </resources>

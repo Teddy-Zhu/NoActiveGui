@@ -6,14 +6,15 @@
 ## 功能
 
 1. 图形化配置 whiteApp blackSystemApp
+2. 功能配置, debug, 开关oom ,coloros oom, 强制freezerV2, kill 19 ,20
 
 ## TODO
 
- - [ ] 配置 kill 19/20
- - [ ] 配置 coloros lmk , oom hook switch
- - [ ] 开关debug
+ - [x] 配置 kill 19/20
+ - [x] 配置 coloros lmk , oom hook switch
+ - [x] 开关debug
  - [ ] 优化修改配置方案，目前 `su cmd` 方式不够优雅
- - [ ] 检测NoActive 是否安装启用
+ - [ ] 检测NoActive 是否安装启用,可能无法实现
  - [ ] NoActive log 显示 
 
 PS: 业余android coder 水平有限， 欢迎pr
