@@ -16,5 +16,12 @@
  - [ ] 优化修改配置方案，目前 `su cmd` 方式不够优雅
  - [ ] 检测NoActive 是否安装启用,可能无法实现
  - [ ] NoActive log 显示 
+## screenshots
+
+ ![](screenshots/3.jpeg)
+ ![](screenshots/2.jpeg)
+ ![](screenshots/1.jpeg)
+
+
 
 PS: 业余android coder 水平有限， 欢迎pr

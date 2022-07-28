@@ -55,8 +55,8 @@
 
     <string name="remove_sys_black_apps">[%s]移除系统App黑名单</string>
     <string name="add_sys_black_apps">[%s]加入系统App黑名单</string>
-    <string name="remove_white_apps">[%s]移除App黑名单</string>
-    <string name="add_white_apps">[%s]加入App黑名单</string>
+    <string name="remove_white_apps">[%s]移除App白名单</string>
+    <string name="add_white_apps">[%s]加入App白名单</string>
     <string name="copy_pkg_name">包名已复制到剪切板</string>
 
     <string name="forceFreezerV2">强制使用freezerV2</string>
