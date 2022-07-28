@@ -27,10 +27,12 @@ import java.util.Set;
 import com.v2dawn.noactivegui.R;
 import com.v2dawn.noactivegui.ui.support.CornerLabelView;
 import com.v2dawn.noactivegui.ui.support.ViewData;
+import com.v2dawn.noactivegui.ui.support.recycler.FastScrollRecyclerView;
 import com.v2dawn.noactivegui.utils.AppListChangeListener;
 import com.v2dawn.noactivegui.utils.ViewDataCacheBuilder;
 
-public class AppListRecyclerAdapter extends RecyclerView.Adapter<AppListRecyclerAdapter.MyViewHolder> {
+public class AppListRecyclerAdapter extends RecyclerView.Adapter<AppListRecyclerAdapter.MyViewHolder>
+        implements FastScrollRecyclerView.SectionedAdapter {
 
     private final Set<String> whiteListConf;
 
@@ -181,6 +183,12 @@ public class AppListRecyclerAdapter extends RecyclerView.Adapter<AppListRecycler
 
     public Filter getFilter() {
         return nameFilter;
+    }
+
+    @NonNull
+    @Override
+    public String getSectionName(int position) {
+        return cacheData.get(position).getName();
     }
 
     static class MyViewHolder extends RecyclerView.ViewHolder {

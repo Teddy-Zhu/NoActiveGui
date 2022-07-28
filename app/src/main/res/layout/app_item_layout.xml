@@ -20,6 +20,7 @@
             android:background="#10000000"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:paddingStart="10dp"
             android:orientation="horizontal">
 
             <ImageView
@@ -42,7 +43,7 @@
                 android:layout_toEndOf="@+id/app_icon"
                 android:layout_alignParentEnd="true"
                 android:orientation="vertical"
-                android:paddingHorizontal="20dp">
+                android:paddingHorizontal="10dp">
 
                 <TextView
                     android:id="@+id/app_label"
