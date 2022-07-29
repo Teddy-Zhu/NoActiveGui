@@ -17,14 +17,23 @@ import androidx.fragment.app.Fragment;
 
 
 import java.nio.charset.StandardCharsets;
+import java.util.List;
+import java.util.Set;
 
 import com.v2dawn.noactivegui.databinding.FragmentLogcatBinding;
+import com.v2dawn.noactivegui.utils.SuTool;
+
+import cn.hutool.core.collection.CollUtil;
 
 public class LogcatFragment extends Fragment {
 
     private FragmentLogcatBinding binding;
     TextView logView;
     LinearLayout forBottom;
+    String logPath;
+
+    public static final String LSP_LOG_PATH = "/data/adb/lspd/log";
+    public static final String LSP_LOG_NAME_KEYWORD = "modules_";
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -33,7 +42,17 @@ public class LogcatFragment extends Fragment {
         logView = binding.logView;
         forBottom = binding.forBottom;
 
+        logPath = LSP_LOG_PATH + "/" + SuTool.findLatestFile(LSP_LOG_PATH, LSP_LOG_NAME_KEYWORD);
+        updateLog();
         return binding.getRoot();
+    }
+
+
+    private void updateLog() {
+        List<String> logs = SuTool.readOriginFileFilter(logPath, "NoActive ->");
+        logView.setMovementMethod(ScrollingMovementMethod.getInstance());//流畅滑动
+        logView.setText(CollUtil.join(logs, System.lineSeparator()));
+        forBottom.requestFocus();//请求焦点，直接到日志底部
     }
 
     @Override
@@ -41,22 +60,5 @@ public class LogcatFragment extends Fragment {
         super.onDestroyView();
         binding = null;
     }
-
-    private final Handler handler = new Handler(Looper.getMainLooper()) {
-        @SuppressLint("SetTextI18n")
-        @Override
-        public void handleMessage(Message msg) {
-            super.handleMessage(msg);
-            byte[] response = msg.getData().getByteArray("response");
-
-            if (response == null || response.length == 0) {
-                return;
-            }
-
-            logView.setMovementMethod(ScrollingMovementMethod.getInstance());//流畅滑动
-            logView.setText(new String(response, StandardCharsets.UTF_8));
-            forBottom.requestFocus();//请求焦点，直接到日志底部
-        }
-    };
 
 }

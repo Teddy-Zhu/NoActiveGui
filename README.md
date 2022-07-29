@@ -14,8 +14,8 @@
  - [x] 配置 coloros lmk , oom hook switch
  - [x] 开关debug
  - [ ] 优化修改配置方案，目前 `su cmd` 方式不够优雅
- - [ ] 检测NoActive 是否安装启用,可能无法实现
- - [ ] NoActive log 显示 
+ - [x] 检测NoActive 是否安装启用,可能无法实现
+ - [x] NoActive log 显示 
 ## screenshots
 
  ![](screenshots/3.jpeg)

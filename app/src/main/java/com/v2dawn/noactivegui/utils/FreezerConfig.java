@@ -128,7 +128,7 @@ public class FreezerConfig {
     }
 
     public static Set<String> get(String name) {
-        return SuTool.readFile(ConfigDir + "/" + name);
+        return SuTool.readConfigFile(ConfigDir + "/" + name);
     }
 
 

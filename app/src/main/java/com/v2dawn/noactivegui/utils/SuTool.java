@@ -5,15 +5,20 @@ import android.os.Build;
 
 import androidx.annotation.RequiresApi;
 
+import com.v2dawn.noactivegui.utils.support.StrLineFilter;
+
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.io.IoUtil;
 import cn.hutool.core.util.StrUtil;
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
@@ -69,9 +74,17 @@ public class SuTool {
         return resultArr.length > 0 && "0".equals(resultArr[resultArr.length - 1]);
     }
 
-    public static Set<String> readFile(String file) {
+    public static List<String> readOriginFileFilter(String file, String filter) {
+        return _readOriginFile(file, filter, null);
+    }
+
+    public static List<String> readOriginFile(String file) {
+        return _readOriginFile(file, null, null);
+    }
+
+    public static Set<String> readConfigFile(String file) {
         return Observable.create((ObservableOnSubscribe<Set<String>>) emitter -> {
-                    emitter.onNext(_readFile(file));
+                    emitter.onNext(CollUtil.newHashSet(_readOriginFile(file, null, line -> !("".equals(line.trim()) || line.trim().startsWith("#")))));
                     emitter.onComplete();
                 })
                 .subscribeOn(Schedulers.io())
@@ -79,22 +92,54 @@ public class SuTool {
                 .blockingFirst();
     }
 
-    public static Set<String> _readFile(String file) {
+    public static List<String> _readOriginFile(String file, String filter, StrLineFilter strLineFilter) {
 
-        String result = runCmdWithShardProcessWithResponse("cat " + file + "; echo $?" + END_STR);
+        String filterCmd = filter != null ? (" | grep '" + filter + "'") : "";
+        String result = runCmdWithShardProcessWithResponse("cat " + file + filterCmd + "; echo $?" + END_STR);
 
         String[] resultArr = result.split(System.lineSeparator());
-        Set<String> set = new HashSet<>();
+        List<String> set = new ArrayList<>();
 
         boolean ret = formatResultStr(resultArr[resultArr.length - 1]);
         if (ret) {
             for (int i = 0; i < resultArr.length - 1; i++) {
                 String line = resultArr[i];
-                if ("".equals(line.trim()) || line.trim().startsWith("#")) continue;
-                set.add(line);
+                if (strLineFilter != null) {
+                    if (strLineFilter.filter(line)) {
+                        set.add(line);
+                    }
+                } else {
+                    set.add(line);
+                }
             }
         }
         return set;
+    }
+
+    public static String findLatestFile(String dir, String fileKeyWord) {
+        return Observable.create((ObservableOnSubscribe<String>) emitter -> {
+                    emitter.onNext(_findLatestFile(dir, fileKeyWord));
+                    emitter.onComplete();
+                })
+                .subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.io())
+                .blockingFirst();
+    }
+
+    public static String _findLatestFile(String dir, String fileKeyWord) {
+
+        String result = runCmdWithShardProcessWithResponse("ls -b " + dir + " | grep " + fileKeyWord + " | tail -n 1" + "; echo $?" + END_STR);
+
+        String[] resultArr = result.split(System.lineSeparator());
+
+        if (resultArr.length != 2) {
+            return "";
+        }
+        boolean ret = formatResultStr(resultArr[resultArr.length - 1]);
+        if (ret) {
+            return resultArr[0];
+        }
+        return "";
     }
 
 
@@ -156,7 +201,6 @@ public class SuTool {
         }
     }
 
-    @SuppressLint("NewApi")
     public static void requireSharedProcess() {
         if (holderProcess == null || !holderProcess.isAlive()) {
             createSuProcess();
@@ -174,6 +218,9 @@ public class SuTool {
             StringBuilder stringBuilder = new StringBuilder();
             while (true) {
                 line = bufferedReader.readLine();
+                if (line == null) {
+                    break;
+                }
                 if (line.endsWith(END_STR)) {
                     line = StrUtil.removeSuffix(line, END_STR) + System.lineSeparator();
                     stringBuilder.append(line).append(System.lineSeparator());
@@ -199,7 +246,4 @@ public class SuTool {
         }
     }
 
-    public static void main(String[] args) {
-
-    }
 }

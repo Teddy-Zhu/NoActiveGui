@@ -79,7 +79,7 @@ public class AppListRecyclerAdapter extends RecyclerView.Adapter<AppListRecycler
         return new MyViewHolder(view);
     }
 
-    @SuppressLint({"UseCompatLoadingForDrawables", "SetTextI18n", "ResourceAsColor", "NewApi"})
+    @SuppressLint({"UseCompatLoadingForDrawables", "SetTextI18n", "ResourceAsColor"})
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
         ViewData viewData = cacheData.get(position);

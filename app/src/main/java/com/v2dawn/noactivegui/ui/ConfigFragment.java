@@ -123,7 +123,6 @@ public class ConfigFragment extends Fragment implements AppListChangeListener, V
                 .subscribe(searchViewQueryTextEvent -> searchViewTextChange(searchViewQueryTextEvent.getQueryText()));
     }
 
-    @SuppressLint("NewApi")
     private List<ViewData> buildCache(Boolean showSystem) {
 
         List<ViewData> cache = new ArrayList<>();
