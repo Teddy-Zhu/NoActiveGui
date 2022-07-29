@@ -95,6 +95,7 @@
                         <androidx.appcompat.widget.SwitchCompat
                             android:text="@string/useKiller"
                             android:enabled="false"
+                            android:theme="@style/SwitchTheme"
                             android:thumb="@drawable/switch_common"
                             app:track="@drawable/switch_common_track"
                             android:textColor="@color/black"
