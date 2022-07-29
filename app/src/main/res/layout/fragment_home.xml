@@ -95,6 +95,8 @@
                         <androidx.appcompat.widget.SwitchCompat
                             android:text="@string/useKiller"
                             android:enabled="false"
+                            android:thumb="@drawable/switch_common"
+                            app:track="@drawable/switch_common_track"
                             android:textColor="@color/black"
                             android:id="@+id/use_kill"
                             android:layout_width="match_parent"
@@ -109,6 +111,8 @@
                         <androidx.appcompat.widget.SwitchCompat
                             android:id="@+id/use_kill_19"
                             android:text="@string/useKiller_19"
+                            android:thumb="@drawable/switch_common"
+                            app:track="@drawable/switch_common_track"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"/>
                     </LinearLayout>
@@ -121,6 +125,8 @@
                         <androidx.appcompat.widget.SwitchCompat
                             android:text="@string/useKiller_20"
                             android:id="@+id/use_kill_20"
+                            android:thumb="@drawable/switch_common"
+                            app:track="@drawable/switch_common_track"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"/>
                     </LinearLayout>
@@ -133,6 +139,8 @@
                         <androidx.appcompat.widget.SwitchCompat
                             android:text="@string/forceFreezerV2"
                             android:id="@+id/force_freezerv2"
+                            android:thumb="@drawable/switch_common"
+                            app:track="@drawable/switch_common_track"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"/>
                     </LinearLayout>
@@ -146,6 +154,8 @@
                         <androidx.appcompat.widget.SwitchCompat
                             android:id="@+id/disable_oom"
                             android:text="@string/disable_oom"
+                            android:thumb="@drawable/switch_common"
+                            app:track="@drawable/switch_common_track"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"/>
                     </LinearLayout>
@@ -159,6 +169,8 @@
                         <androidx.appcompat.widget.SwitchCompat
                             android:id="@+id/enable_coloros_oom"
                             android:text="@string/enable_colorOs_oom"
+                            android:thumb="@drawable/switch_common"
+                            app:track="@drawable/switch_common_track"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"/>
                     </LinearLayout>
@@ -172,6 +184,8 @@
                         <androidx.appcompat.widget.SwitchCompat
                             android:id="@+id/enable_debug"
                             android:text="@string/enable_debug"
+                            android:thumb="@drawable/switch_common"
+                            app:track="@drawable/switch_common_track"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"/>
                     </LinearLayout>
