@@ -10,7 +10,8 @@
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="20dp"
+        android:layout_marginHorizontal="20dp"
+        android:layout_marginVertical="5dp"
         app:cardCornerRadius="@dimen/global_card_corner">
 
         <TextView
@@ -19,7 +20,7 @@
             android:layout_height="wrap_content"
             android:background="@color/white"
             android:gravity="center_vertical"
-            android:padding="20dp"
+            android:padding="10dp"
             android:text="@string/tips_app"
             app:cardCornerRadius="8dp" />
 
