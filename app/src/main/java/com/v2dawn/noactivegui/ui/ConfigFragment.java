@@ -162,7 +162,8 @@ public class ConfigFragment extends Fragment implements AppListChangeListener, V
                 })
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(data -> refreshListView(data));
+                .doOnError(throwable -> Log.e(TAG, "refreshAppList: ", throwable))
+                .subscribe(this::refreshListView, throwable -> Log.e(TAG, "refreshAppList sub: ", throwable));
 
     }
 
