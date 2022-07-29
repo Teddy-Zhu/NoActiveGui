@@ -66,5 +66,6 @@
     <string name="disable_oom">是否禁用oom_adj</string>
     <string name="enable_colorOs_oom">启用coloros oom_adj</string>
     <string name="enable_debug">启用debug</string>
+    <string name="tips_app">点击普通App切换白名单,点击系统应用切换系统黑名单,XP:xposed模块,SYS:系统应用</string>
 
 </resources>

@@ -4,26 +4,16 @@
     package="com.v2dawn.noactivegui"
     tools:ignore="MissingLeanbackLauncher">
 
-    <uses-feature
-        android:name="android.software.leanback"
-        android:required="false" />
-    <uses-feature
-        android:name="android.hardware.touchscreen"
-        android:required="false" />
 
     <uses-permission android:name="android.permission.GET_INSTALLED_APPS"/>
     <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES"
         tools:ignore="QueryAllPackagesPermission" />
 
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" />
-    
     <application
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
-        android:theme="@style/Theme.freezeit"
+        android:theme="@style/Theme.noactivegui"
         android:supportsRtl="true">
         <activity
             android:name="com.v2dawn.noactivegui.ui.MainActivity"

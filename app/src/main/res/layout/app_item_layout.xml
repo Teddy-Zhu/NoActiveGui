@@ -10,14 +10,14 @@
 
 
     <androidx.cardview.widget.CardView
-        app:cardCornerRadius="16dp"
+        app:cardCornerRadius="@dimen/global_card_corner"
         android:id="@+id/app_item_cardview"
         android:layout_width="match_parent"
         android:layout_height="match_parent" >
 
         <RelativeLayout
             android:padding="5dp"
-            android:background="#10000000"
+            android:background="@color/white"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:paddingStart="10dp"

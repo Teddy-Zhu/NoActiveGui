@@ -40,15 +40,11 @@ android {
 
 dependencies {
 
-    compileOnly 'de.robv.android.xposed:api:82'
-    compileOnly 'de.robv.android.xposed:api:82:sources'
-
     compileOnly 'org.projectlombok:lombok:1.18.24'
     annotationProcessor 'org.projectlombok:lombok:1.18.24'
 
-
     implementation 'io.reactivex.rxjava3:rxandroid:3.0.0'
-    implementation 'io.reactivex.rxjava3:rxjava:3.0.0'
+    implementation 'io.reactivex.rxjava3:rxjava:3.0.3'
     implementation 'com.jakewharton.rxbinding4:rxbinding:4.0.0'
 
     implementation 'cn.hutool:hutool-core:5.8.4'
@@ -66,7 +62,6 @@ dependencies {
     implementation 'com.jakewharton.rxbinding4:rxbinding-core:4.0.0'
     implementation 'com.jakewharton.rxbinding4:rxbinding-appcompat:4.0.0'
     implementation 'com.jakewharton.rxbinding4:rxbinding-drawerlayout:4.0.0'
-    implementation 'com.jakewharton.rxbinding4:rxbinding-leanback:4.0.0'
     implementation 'com.jakewharton.rxbinding4:rxbinding-recyclerview:4.0.0'
     implementation 'com.jakewharton.rxbinding4:rxbinding-slidingpanelayout:4.0.0'
     implementation 'com.jakewharton.rxbinding4:rxbinding-swiperefreshlayout:4.0.0'
