@@ -106,6 +106,11 @@ public class ConfigFragment extends Fragment implements AppListChangeListener, V
             }
         }, this.getViewLifecycleOwner());
 
+        LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
+        recyclerView.setLayoutManager(layoutManager);
+        layoutManager.setOrientation(RecyclerView.VERTICAL);
+        recyclerView.setItemAnimator(new DefaultItemAnimator());
+
         refreshAppList(false);
 
         return binding.getRoot();
@@ -175,11 +180,8 @@ public class ConfigFragment extends Fragment implements AppListChangeListener, V
                 MainActivity.memData.getBlackSystemApps(),
                 data, CollUtil.newArrayList(data),
                 ConfigFragment.this, ConfigFragment.this);
-        LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
-        recyclerView.setLayoutManager(layoutManager);
-        layoutManager.setOrientation(RecyclerView.VERTICAL);
         recyclerView.setAdapter(recycleAdapter);
-        recyclerView.setItemAnimator(new DefaultItemAnimator());
+
 
         swipeRefreshLayout.setRefreshing(false);
 
