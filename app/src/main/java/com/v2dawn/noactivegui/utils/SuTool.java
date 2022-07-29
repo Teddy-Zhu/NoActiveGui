@@ -14,6 +14,8 @@ import java.lang.reflect.Field;
 import java.util.HashSet;
 import java.util.Set;
 
+import cn.hutool.core.io.IoUtil;
+import cn.hutool.core.util.StrUtil;
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.ObservableOnSubscribe;
@@ -38,104 +40,58 @@ public class SuTool {
         return exist(file, "f");
     }
 
+    public static boolean exist(String file, String mark) {
+        return executeCmd("[ -" + mark + " \"" + file + "\" ]");
+    }
+
     public static boolean writeFile(String file, String content) {
         return writeFile(file, content, false);
     }
 
     private static boolean writeFile(String file, String content, Boolean append) {
-        return Observable.create((ObservableOnSubscribe<Boolean>) emitter -> {
-            emitter.onNext(_writeFile(file, content, append));
-            emitter.onComplete();
-        })
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .blockingFirst();
+        return executeCmd("echo '" + content + "' " + (append ? ">>" : ">") + " " + file);
     }
 
-    private static boolean _writeFile(String file, String content, Boolean append) {
-        Boolean ret = false;
-        try {
-            Process process = Runtime.getRuntime().exec("su");
-            DataOutputStream os = new DataOutputStream(process.getOutputStream());
-            os.write(("echo '" + content + "' " + (append ? ">>" : ">") + " " + file).getBytes());
-            os.writeBytes("\n");
-            os.flush();
-            os.close();
-            os = null;
-            int result = process.waitFor();
-            if (result != 0) {
-                int pid = getPid(process);
-                if (pid != 0) {
-                    try {
-                        android.os.Process.killProcess(pid);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-                ret = false;
-            } else {
-                ret = true;
-            }
-            process.destroy();
-            process = null;
-        } catch (IOException | InterruptedException e) {
-            e.printStackTrace();
-        }
-        return ret;
-    }
-
-    public static Set<String> _readFile(String file) {
-        return Observable.create((ObservableOnSubscribe<Set<String>>) emitter -> {
-            emitter.onNext(_readFile(file));
-            emitter.onComplete();
-        })
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .blockingFirst();
+    private static boolean formatResultStr(String result) {
+        String[] resultArr = result.split(System.lineSeparator());
+        return resultArr.length > 0 && "0".equals(resultArr[resultArr.length - 1]);
     }
 
     public static Set<String> readFile(String file) {
+        return Observable.create((ObservableOnSubscribe<Set<String>>) emitter -> {
+                    emitter.onNext(_readFile(file));
+                    emitter.onComplete();
+                })
+                .subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.io())
+                .blockingFirst();
+    }
+
+    public static Set<String> _readFile(String file) {
+
+        String result = runCmdWithShardProcessWithResponse("cat " + file + "; echo $?" + END_STR);
+
+        String[] resultArr = result.split(System.lineSeparator());
         Set<String> set = new HashSet<>();
-        try {
-            Process process = Runtime.getRuntime().exec("su");
-            DataOutputStream os = new DataOutputStream(process.getOutputStream());
-            os.write(("cat " + file).getBytes());
-            os.writeBytes("\n");
-            os.flush();
-            os.close();
-            process.waitFor();
 
-            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            String line;
-            while ((line = bufferedReader.readLine()) != null) {
+        boolean ret = formatResultStr(resultArr[resultArr.length - 1]);
+        if (ret) {
+            for (int i = 0; i < resultArr.length - 1; i++) {
+                String line = resultArr[i];
                 if ("".equals(line.trim()) || line.trim().startsWith("#")) continue;
-                set.add(line.trim());
+                set.add(line);
             }
-            bufferedReader.close();
-
-            process.destroy();
-            process = null;
-        } catch (FileNotFoundException fileNotFoundException) {
-            Log.i(file + " file not found");
-        } catch (IOException ioException) {
-            Log.i(file + " file read filed");
-        } catch (InterruptedException e) {
-            e.printStackTrace();
         }
-
         return set;
     }
 
-    public static boolean exist(String file, String mark) {
-        return executeCmd("[ -" + mark + " \"" + file + "\" ]; exit $?");
-    }
 
     private static boolean executeCmd(String cmd) {
         return Observable.create((ObservableOnSubscribe<Boolean>) emitter -> {
-            Boolean ret = _executeCmd(cmd);
-            emitter.onNext(ret);
-            emitter.onComplete();
-        })
+                    Boolean ret = _executeCmd(cmd);
+                    emitter.onNext(ret);
+                    emitter.onComplete();
+                })
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io())
                 .blockingFirst();
@@ -143,37 +99,8 @@ public class SuTool {
     }
 
     private static boolean _executeCmd(String cmd) {
-        Boolean ret = false;
-        try {
-            Process process = Runtime.getRuntime().exec("su");
-            DataOutputStream os = new DataOutputStream(process.getOutputStream());
-            os.write(cmd.getBytes());
-            os.writeBytes("\n");
-            os.flush();
-            os.close();
-            os = null;
-            int result = process.waitFor();
-//            if (result != 0) {
-////                int pid = getPid(process);
-////                if (pid != 0) {
-////                    try {
-////                        android.os.Process.killProcess(pid);
-////                    } catch (Exception e) {
-////                        e.printStackTrace();
-////                    }
-////                }
-//                ret = false;
-//            } else {
-//                ret = true;
-//            }
-            ret = result == 0;
-            process.destroy();
-            process = null;
-        } catch (IOException | InterruptedException e) {
-            e.printStackTrace();
-            return false;
-        }
-        return ret;
+        String ret = runCmdWithShardProcessWithResponse(cmd + "; echo $?" + END_STR);
+        return formatResultStr(ret);
     }
 
     public static int getPid(Process p) {
@@ -193,48 +120,60 @@ public class SuTool {
     public static boolean removeFile(String filePath) {
         return executeCmd("rm -f " + filePath);
     }
-    static Process testprocess;
-    static DataOutputStream testos;
+
+    static Process holderProcess;
+    static DataOutputStream os;
+    static BufferedReader bufferedReader;
+    public static final String END_STR = "#NOA#";
+
     public static void createSuProcess() {
         try {
-            testprocess = Runtime.getRuntime().exec("su");
-            testos = new DataOutputStream(testprocess.getOutputStream());
+            holderProcess.destroy();
+            IoUtil.close(os);
+            IoUtil.close(bufferedReader);
+        } catch (Exception e) {
+            //ignore
+        }
+        try {
+
+            holderProcess = Runtime.getRuntime().exec("su");
+            os = new DataOutputStream(holderProcess.getOutputStream());
+            bufferedReader = new BufferedReader(new InputStreamReader(holderProcess.getInputStream()));
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
     @SuppressLint("NewApi")
-    public static void adapterProcess() {
-        if (testprocess == null || !testprocess.isAlive()) {
+    public static void requireSharedProcess() {
+        if (holderProcess == null || !holderProcess.isAlive()) {
             createSuProcess();
         }
     }
 
-    public static boolean testKeepProcess(String cmd) {
-        Boolean ret = false;
+    public static String runCmdWithShardProcessWithResponse(String cmd) {
+        requireSharedProcess();
+        String ret = "";
         try {
-            testos.write(cmd.getBytes());
-            testos.writeBytes("\n");
-            testos.flush();
-            int result = testprocess.waitFor();
-//            if (result != 0) {
-////                int pid = getPid(process);
-////                if (pid != 0) {
-////                    try {
-////                        android.os.Process.killProcess(pid);
-////                    } catch (Exception e) {
-////                        e.printStackTrace();
-////                    }
-////                }
-//                ret = false;
-//            } else {
-//                ret = true;
-//            }
-            ret = result == 0;
-        } catch (IOException | InterruptedException e) {
+            os.write(cmd.getBytes());
+            os.writeBytes(System.lineSeparator());
+            os.flush();
+            String line;
+            StringBuilder stringBuilder = new StringBuilder();
+            while (true) {
+                line = bufferedReader.readLine();
+                if (line.endsWith(END_STR)) {
+                    line = StrUtil.removeSuffix(line, END_STR) + System.lineSeparator();
+                    stringBuilder.append(line).append(System.lineSeparator());
+                    break;
+                } else {
+                    stringBuilder.append(line).append(System.lineSeparator());
+                }
+            }
+            ret = stringBuilder.toString();
+        } catch (IOException e) {
             e.printStackTrace();
-            return false;
+            return "";
         }
         return ret;
     }
