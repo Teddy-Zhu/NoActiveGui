@@ -40,6 +40,7 @@ import com.v2dawn.noactivegui.R;
 import com.v2dawn.noactivegui.databinding.FragmentConfigBinding;
 import com.v2dawn.noactivegui.ui.support.ViewData;
 import com.v2dawn.noactivegui.utils.AppListChangeListener;
+import com.v2dawn.noactivegui.utils.AppUtils;
 import com.v2dawn.noactivegui.utils.ViewDataCacheBuilder;
 
 import cn.hutool.core.collection.CollUtil;
@@ -54,7 +55,6 @@ public class ConfigFragment extends Fragment implements AppListChangeListener, V
     final String TAG = "ConfigFragment";
     private FragmentConfigBinding binding;
     AppListRecyclerAdapter recycleAdapter;
-    List<ApplicationInfo> applicationInfoList = new ArrayList<>();
     SearchView searchView;
     MenuItem showSystemItem;
 
@@ -72,8 +72,8 @@ public class ConfigFragment extends Fragment implements AppListChangeListener, V
         swipeRefreshLayout = binding.swipeRefreshLayout;
 
         RxSwipeRefreshLayout.refreshes(swipeRefreshLayout)
-                .throttleFirst(2000L,TimeUnit.MILLISECONDS)
-                .subscribe(unit -> refreshAppList(showSystemItem.isChecked()));
+                .throttleFirst(2000L, TimeUnit.MILLISECONDS)
+                .subscribe(unit -> refreshAppList(showSystemItem.isChecked(), true));
 
         pm = requireContext().getPackageManager();
 
@@ -111,25 +111,29 @@ public class ConfigFragment extends Fragment implements AppListChangeListener, V
         return binding.getRoot();
     }
 
-    private void searchViewTextChange(CharSequence query){
+    private void searchViewTextChange(CharSequence query) {
         if (recycleAdapter != null) {
             recycleAdapter.getFilter().filter(query);
         }
     }
+
     private void bindSearchViewEvents() {
         RxSearchView.queryTextChangeEvents(searchView)
-                .throttleLast(1,TimeUnit.SECONDS)
+                .throttleLast(1, TimeUnit.SECONDS)
                 .subscribe(searchViewQueryTextEvent -> searchViewTextChange(searchViewQueryTextEvent.getQueryText()));
     }
 
     @SuppressLint("NewApi")
-    private List<ViewData> buildCache() {
+    private List<ViewData> buildCache(Boolean showSystem) {
 
         List<ViewData> cache = new ArrayList<>();
 
-        for (ApplicationInfo appInfo : this.applicationInfoList) {
-            String label = getOriginLabel(appInfo);
+        for (ApplicationInfo appInfo : AppUtils.getApps()) {
 
+            if (AppUtils.isSystem(appInfo) && !showSystem) {
+                continue;
+            }
+            String label = getOriginLabel(appInfo);
             ViewData viewData = new ViewData();
             viewData.setLabel(label);
             viewData.setApplicationInfo(appInfo);
@@ -142,58 +146,27 @@ public class ConfigFragment extends Fragment implements AppListChangeListener, V
         return cache;
     }
 
-    public boolean isXposedModule(ApplicationInfo applicationInfo) {
-        if (applicationInfo == null || applicationInfo.metaData == null) {
-            return false;
-        }
-
-        return applicationInfo.metaData.containsKey("xposedminversion");
-    }
-
-    public boolean isSystem(ApplicationInfo applicationInfo) {
-        if (applicationInfo == null) {
-            return true;
-        }
-        return (applicationInfo.flags & (ApplicationInfo.FLAG_SYSTEM | ApplicationInfo.FLAG_UPDATED_SYSTEM_APP)) != 0;
-    }
-
-    public boolean isImportantSystemApp(ApplicationInfo applicationInfo) {
-        if (applicationInfo == null) {
-            return true;
-        }
-        return applicationInfo.uid < 10000;
+    private void refreshAppList(Boolean showSystem) {
+        refreshAppList(showSystem, false);
     }
 
     @SuppressLint("CheckResult")
-    private void refreshAppList(Boolean showSystem) {
+    private void refreshAppList(Boolean showSystem, Boolean forceRefresh) {
 //        swipeRefreshLayout.setEnabled(false);
         swipeRefreshLayout.setRefreshing(true);
 
-        Observable.create((ObservableOnSubscribe< List<ViewData>>) emitter -> {
-            refreshAppListApi(showSystem);
-            List<ViewData> data = buildCache();
-
-            emitter.onNext(data);
-            emitter.onComplete();
-        })
+        Observable.create((ObservableOnSubscribe<List<ViewData>>) emitter -> {
+                    AppUtils.loadApplicationInfos(pm, forceRefresh);
+                    List<ViewData> data = buildCache(showSystem);
+                    emitter.onNext(data);
+                    emitter.onComplete();
+                })
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(data -> refreshListView(data));
 
     }
 
-    private void refreshAppListApi(Boolean showSystem) {
-        applicationInfoList.clear();
-
-        List<ApplicationInfo> allApplicationInfoList = pm.getInstalledApplications(PackageManager.GET_META_DATA | PackageManager.MATCH_UNINSTALLED_PACKAGES);
-
-        for (ApplicationInfo appInfo : allApplicationInfoList) {
-            if (isSystem(appInfo) && !showSystem) {
-                continue;
-            }
-            applicationInfoList.add(appInfo);
-        }
-    }
 
     @SuppressLint("CheckResult")
     private void refreshListView(List<ViewData> data) {
@@ -223,14 +196,14 @@ public class ConfigFragment extends Fragment implements AppListChangeListener, V
         recycleAdapter.notifyItemChanged(position, 0);
 
         Observable.create((ObservableOnSubscribe<Boolean>) emitter -> {
-            if (viewData.getIsSystem()) {
-                MainActivity.memData.writeBlackSystemApps();
-            } else {
-                MainActivity.memData.writeWhiteApps();
-            }
-            emitter.onNext(true);
-            emitter.onComplete();
-        }).throttleLast(2000L, TimeUnit.MILLISECONDS).subscribeOn(Schedulers.newThread())
+                    if (viewData.getIsSystem()) {
+                        MainActivity.memData.writeBlackSystemApps();
+                    } else {
+                        MainActivity.memData.writeWhiteApps();
+                    }
+                    emitter.onNext(true);
+                    emitter.onComplete();
+                }).throttleLast(2000L, TimeUnit.MILLISECONDS).subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe();
 
@@ -242,9 +215,9 @@ public class ConfigFragment extends Fragment implements AppListChangeListener, V
         ApplicationInfo appInfo = viewData.getApplicationInfo();
         String label = viewData.getLabel();
 
-        viewData.setIsSystem(isSystem(appInfo));
-        viewData.setIsImportantSystemApp(isImportantSystemApp(appInfo));
-        viewData.setIsXposedModule(isXposedModule(appInfo));
+        viewData.setIsSystem(AppUtils.isSystem(appInfo));
+        viewData.setIsImportantSystemApp(AppUtils.isImportantSystemApp(appInfo));
+        viewData.setIsXposedModule(AppUtils.isXposedModule(appInfo));
         viewData.setName(label);
         Drawable icon = appInfo.loadIcon(pm);
         viewData.setPackageName(appInfo.packageName);

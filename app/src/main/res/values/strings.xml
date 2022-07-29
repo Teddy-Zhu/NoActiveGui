@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">NoActive-GUI</string>
     <string name="app_description">Let app no active in background</string>
-
+    <string name="xp_module_name">NoActive</string>
     <string name="title_home">NoActive-GUI</string>
     <string name="title_config">配置</string>
     <string name="title_logcat">日志</string>

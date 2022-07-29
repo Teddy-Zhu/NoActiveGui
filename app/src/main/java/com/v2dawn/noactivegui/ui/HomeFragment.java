@@ -30,6 +30,7 @@ import com.v2dawn.noactivegui.R;
 import com.v2dawn.noactivegui.databinding.FragmentHomeBinding;
 import com.v2dawn.noactivegui.utils.AppUtils;
 import com.v2dawn.noactivegui.utils.FreezerConfig;
+import com.v2dawn.noactivegui.utils.LsposedModuleUtils;
 import com.v2dawn.noactivegui.utils.NoActiveConfig;
 
 
@@ -64,7 +65,6 @@ public class HomeFragment extends Fragment implements View.OnClickListener, Comp
         forceFreezerV2 = binding.forceFreezerv2;
         enableColorOS = binding.enableColorosOom;
         debug = binding.enableDebug;
-
 
         updateConfigStatus();
         updateStatus();
@@ -121,7 +121,7 @@ public class HomeFragment extends Fragment implements View.OnClickListener, Comp
     }
 
     private void updateStatus() {
-        boolean isActive = AppUtils.isModuleActive();
+        boolean isActive = AppUtils.isModuleActive(requireContext(), NO_ACTIVE_MODULE);
 
         if (!isActive) {
             stateLayout.setBackgroundResource(R.color.warn_red);
@@ -131,8 +131,8 @@ public class HomeFragment extends Fragment implements View.OnClickListener, Comp
         }
 
         moduleIsRunning = true;
-        moduleName = getString(R.string.app_name);
-        moduleVersion = getVersionName(HomeFragment.this.getContext());
+        moduleName = getString(R.string.xp_module_name);
+        moduleVersion = AppUtils.findPkgVersionCode(requireContext().getPackageManager(), NO_ACTIVE_MODULE);
 
         stateLayout.setBackgroundResource(R.color.normal_green);
         moduleInfo.setText(R.string.freezeit_online);
@@ -168,27 +168,13 @@ public class HomeFragment extends Fragment implements View.OnClickListener, Comp
         return code;
     }
 
-    public static String getVersionName(Context context) {
-        PackageManager manager = context.getPackageManager();
-        String name = null;
-        try {
-            PackageInfo info = manager.getPackageInfo(context.getPackageName(), 0);
-            name = info.versionName;
-        } catch (PackageManager.NameNotFoundException e) {
-            e.printStackTrace();
-        }
-
-        return name;
-    }
-
+    public static final String NO_ACTIVE_MODULE = "cn.myflv.android.noactive";
 
     private void statusNotification() {
 
-        boolean isActive = AppUtils.isModuleActive();
+        boolean isActive = AppUtils.isModuleActive(requireContext(), NO_ACTIVE_MODULE);
         if (!isActive) {
-            Toast.makeText(getContext(), "检测尚未实现", Toast.LENGTH_SHORT).show();
-
-//            Toast.makeText(getContext(), getString(R.string.freezeit_offline), Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), getString(R.string.freezeit_offline), Toast.LENGTH_SHORT).show();
             return;
         }
 

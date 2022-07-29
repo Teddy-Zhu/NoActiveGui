@@ -36,6 +36,18 @@ public class SuTool {
         return exist(file, "d");
     }
 
+    public static boolean copyFile(String source, String destFile) {
+        return executeCmd("cp -f " + source + " " + destFile);
+    }
+
+    public static boolean createLink(String source, String destFile) {
+        return executeCmd("ln -s " + source + " " + destFile);
+    }
+
+    public static boolean setFileRead(String file) {
+        return executeCmd("chmod +r " + file);
+    }
+
     public static boolean existFile(String file) {
         return exist(file, "f");
     }
@@ -176,6 +188,15 @@ public class SuTool {
             return "";
         }
         return ret;
+    }
+
+    public static void releaseSharedProcess() {
+        IoUtil.close(bufferedReader);
+        IoUtil.close(os);
+        if (holderProcess != null) {
+            holderProcess.destroy();
+            holderProcess = null;
+        }
     }
 
     public static void main(String[] args) {
