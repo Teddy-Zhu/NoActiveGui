@@ -15,6 +15,15 @@ public class AppUtils {
         return LsposedModuleUtils.detect(context, moduleName);
     }
 
+    public static PackageInfo findPkgInfo(PackageManager pm, String pkgName) {
+        try {
+            PackageInfo packageInfo = pm.getPackageInfo(pkgName, 0);
+            return packageInfo;
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
     public static String findPkgVersionCode(PackageManager pm, String pkgName) {
         try {
             PackageInfo packageInfo = pm.getPackageInfo(pkgName, 0);

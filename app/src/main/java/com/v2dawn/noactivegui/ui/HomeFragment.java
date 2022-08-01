@@ -14,6 +14,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CompoundButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -43,6 +44,7 @@ public class HomeFragment extends Fragment implements View.OnClickListener, Comp
     String moduleName;
     String moduleVersion;
     ConstraintLayout constraintLayout;
+    ImageView noactiveIcon;
 
     SwitchCompat useKill, useKill19, useKill20, disableOOM, forceFreezerV2, enableColorOS, debug;
 
@@ -57,7 +59,7 @@ public class HomeFragment extends Fragment implements View.OnClickListener, Comp
         stateLayout = binding.stateLayout;
         coolApkLink = binding.coolapkLink;
         coolApkLink2 = binding.coolapkLink2;
-
+        noactiveIcon = binding.noactiveIcon;
         useKill = binding.useKill;
         useKill19 = binding.useKill19;
         useKill20 = binding.useKill20;
@@ -132,8 +134,11 @@ public class HomeFragment extends Fragment implements View.OnClickListener, Comp
 
         moduleIsRunning = true;
         moduleName = getString(R.string.xp_module_name);
-        moduleVersion = AppUtils.findPkgVersionCode(requireContext().getPackageManager(), NO_ACTIVE_MODULE);
-
+        PackageInfo packageInfo = AppUtils.findPkgInfo(requireContext().getPackageManager(), NO_ACTIVE_MODULE);
+        if (packageInfo != null) {
+            moduleVersion = packageInfo.versionName + "(" + packageInfo.versionCode + ")";
+            noactiveIcon.setImageDrawable(packageInfo.applicationInfo.loadIcon(requireContext().getPackageManager()));
+        }
         stateLayout.setBackgroundResource(R.color.normal_green);
         moduleInfo.setText(R.string.freezeit_online);
         moduleState.setText(moduleVersion);
@@ -168,7 +173,7 @@ public class HomeFragment extends Fragment implements View.OnClickListener, Comp
         return code;
     }
 
-    public static final String NO_ACTIVE_MODULE = "cn.myflv.android.noactive";
+    public static final String NO_ACTIVE_MODULE = "cn.myflv.noactive";
 
     private void statusNotification() {
 
