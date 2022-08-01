@@ -72,7 +72,7 @@ public class LogcatFragment extends Fragment {
 
 
     private void updateLog() {
-        List<String> logs = SuTool.readOriginFileFilter(logPath, "NoActive ->");
+        List<String> logs = SuTool.readOriginFileFilter(logPath, "NoActive");
         logView.setMovementMethod(ScrollingMovementMethod.getInstance());//流畅滑动
         logView.setText(CollUtil.join(logs, System.lineSeparator()));
         forBottom.requestFocus();//请求焦点，直接到日志底部
