@@ -92,6 +92,8 @@ public class HomeFragment extends Fragment implements View.OnClickListener, Comp
                 int id = menuItem.getItemId();
                 if (id == R.id.about) {
                     aboutDialog();
+                }else if(id == R.id.check_update) {
+//                    feedbackDialog();
                 }
                 return false;
             }
@@ -101,7 +103,10 @@ public class HomeFragment extends Fragment implements View.OnClickListener, Comp
         return binding.getRoot();
     }
 
-    public void aboutDialog() {
+    private void checkUpdate(){
+
+    }
+    private void aboutDialog() {
         Dialog dialog = new Dialog(requireContext());
         dialog.setContentView(R.layout.about);
         dialog.show();

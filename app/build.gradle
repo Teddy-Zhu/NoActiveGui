@@ -9,8 +9,8 @@ android {
         applicationId "com.v2dawn.noactivegui"
         minSdk 26
         targetSdk 32
-        versionCode 3
-        versionName "0.0.3"
+        versionCode 4
+        versionName "0.0.4"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -61,12 +61,12 @@ dependencies {
 
     implementation 'com.jakewharton.rxbinding4:rxbinding-core:4.0.0'
     implementation 'com.jakewharton.rxbinding4:rxbinding-appcompat:4.0.0'
-    implementation 'com.jakewharton.rxbinding4:rxbinding-drawerlayout:4.0.0'
+//    implementation 'com.jakewharton.rxbinding4:rxbinding-drawerlayout:4.0.0'
     implementation 'com.jakewharton.rxbinding4:rxbinding-recyclerview:4.0.0'
-    implementation 'com.jakewharton.rxbinding4:rxbinding-slidingpanelayout:4.0.0'
+//    implementation 'com.jakewharton.rxbinding4:rxbinding-slidingpanelayout:4.0.0'
     implementation 'com.jakewharton.rxbinding4:rxbinding-swiperefreshlayout:4.0.0'
-    implementation 'com.jakewharton.rxbinding4:rxbinding-viewpager:4.0.0'
-    implementation 'com.jakewharton.rxbinding4:rxbinding-viewpager2:4.0.0'
+//    implementation 'com.jakewharton.rxbinding4:rxbinding-viewpager:4.0.0'
+//    implementation 'com.jakewharton.rxbinding4:rxbinding-viewpager2:4.0.0'
 
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'

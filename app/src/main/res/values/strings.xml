@@ -26,6 +26,7 @@
 
     <string name="update_app_name">更新[新安装应用]</string>
     <string name="about">关于</string>
+    <string name="check_update">检查NoActive版本</string>
 
     <string name="not_support_i_sysapp">系统重要App,不支持黑名单</string>
     <string name="freezeit_online">NoActive 正在运行中</string>
