@@ -11,9 +11,9 @@
       "type": "SINGLE",
       "filters": [],
       "attributes": [],
-      "versionCode": 3,
-      "versionName": "0.0.3",
-      "outputFile": "NoActiveGui-v0.0.3.apk"
+      "versionCode": 4,
+      "versionName": "0.0.4",
+      "outputFile": "NoActiveGui-v0.0.4.apk"
     }
   ],
   "elementType": "File"
